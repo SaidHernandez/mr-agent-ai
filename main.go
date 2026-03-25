@@ -9,11 +9,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var version = "dev"
+
 func main() {
 	rootCmd := &cobra.Command{
-		Use:   "mr-agent-ai",
-		Short: "Multi-Agent AI Skill Installer",
-		Long:  `Installs agent skills (SKILL.md files) and AGENTS.md into the current project.`,
+		Use:     "mr-agent-ai",
+		Short:   "Multi-Agent AI Skill Installer",
+		Long:    `Installs agent skills (SKILL.md files) and AGENTS.md into the current project.`,
+		Version: version,
 	}
 
 	installCmd := &cobra.Command{
