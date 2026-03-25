@@ -1,6 +1,49 @@
-# mr-agent-ai
+<div align="center">
 
-Multi-Agent AI Skill Installer. Installs agent skills into any project with a single command.
+<pre>
+  __  __ ____        _                    _         _    ___
+ |  \/  |  _ \      / \   __ _  ___ _ __ | |_      / \  |_ _|
+ | |\/| | |_) |    / _ \ / _`\|/ _ \ '_ \| __|    / _ \  | |
+ | |  | |  _ <    / ___ \ (_| |  __/ | | | |_    / ___ \ | |
+ |_|  |_|_| \_\  /_/   \_\__, |\___|_| |_|\__|  /_/   \_\___|
+                          |___/
+  Multi-Agent Skill Installer
+</pre>
+
+<p><strong>One command. Any project. Instant multi-agent skills.</strong></p>
+
+<p>
+<a href="https://github.com/SaidHernandez/mr-agent-ai/releases"><img src="https://img.shields.io/github/v/release/SaidHernandez/mr-agent-ai" alt="Release"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+<img src="https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go&logoColor=white" alt="Go 1.21+">
+<img src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey" alt="Platform">
+</p>
+
+</div>
+
+---
+
+## What It Does
+
+Mr. Agent AI installs a set of **agent skills** — structured instruction sets — directly into your project. Each skill teaches your AI coding agent how to handle a specific layer of your stack: React frontend, API security, controllers, services, repositories, migrations, observability, and QA.
+
+**Before**: Your AI agent writes generic code with no project context.
+
+**After**: Your agent reads the relevant skill before touching any layer, follows your architecture, propagates Trace-IDs, uses Zod v4, applies the standard error shape, and knows when NOT to put logic in the wrong layer.
+
+---
+
+## Why
+
+AI agents are powerful but context-blind by default. Skills give them the rules they need before writing a single line of code — so they stop inventing patterns and start following yours.
+
+- No more `useMemo` in React 19 projects
+- No more `z.string().email()` when you're on Zod v4
+- No more business logic leaking into controllers
+- No more raw DB errors surfacing to the API
+- No more logs without Trace-IDs
+
+---
 
 ## Install
 
@@ -8,6 +51,8 @@ Multi-Agent AI Skill Installer. Installs agent skills into any project with a si
 brew tap SaidHernandez/mr-agent-ai https://github.com/SaidHernandez/mr-agent-ai
 brew install mr-agent-ai
 ```
+
+---
 
 ## Usage
 
@@ -18,11 +63,26 @@ cd my-project
 mr-agent-ai install
 ```
 
-The CLI asks which skills to install and creates:
+The CLI prompts you to select which skills to install:
+
+```
+  Install orchestrator       — Central coordination agent [Y/n]:
+  Install frontend           — React 19, Tailwind, Zustand, XSS prevention [Y/n]:
+  Install api-security       — CORS, rate limiting, JWT [Y/n]:
+  Install controller         — Zod v4 DTOs, OpenAPI, error responses [Y/n]:
+  Install service-layer      — Business logic, DI/IoC, domain exceptions [Y/n]:
+  Install repository         — SQL optimization, transactions, idempotency [Y/n]:
+  Install migration          — PostgreSQL schema design, indexing [Y/n]:
+  Install observability      — Structured logging, Trace-ID propagation [Y/n]:
+  Install qa                 — Unit tests, Playwright POM, minimal mocking [Y/n]:
+  Install skill-creator      — Creates new agent skills [Y/n]:
+```
+
+Result in your project:
 
 ```
 my-project/
-├── AGENTS.md                        ← skill index — load this first
+├── AGENTS.md                          ← load this first — skill index
 └── skills/
     ├── orchestrator/SKILL.md
     ├── frontend/SKILL.md
@@ -39,31 +99,49 @@ my-project/
         └── assets/SKILL-TEMPLATE.md
 ```
 
+---
+
 ## Skills
 
-| Skill | Trigger |
-|-------|---------|
-| `orchestrator` | Coordinating multiple agents or managing workflow state |
-| `frontend` | React 19 components, Tailwind, Zustand, XSS prevention |
-| `api-security` | CORS, rate limiting, JWT |
-| `controller` | API endpoints, Zod v4 DTOs, error responses |
-| `service-layer` | Business logic, DI/IoC, domain exceptions |
-| `repository` | SQL optimization, transactions, idempotency |
-| `migration` | PostgreSQL schema design, indexing |
-| `observability` | Structured logging, Trace-ID propagation |
-| `qa` | Unit tests, Playwright E2E, minimal mocking |
-| `skill-creator` | Creating new agent skills |
+| Skill | Trigger | Key Rules |
+|-------|---------|-----------|
+| `orchestrator` | Coordinating multiple agents | Trace-ID generation, no business logic |
+| `frontend` | React components, design systems | React 19 Compiler, no manual memoization, Tailwind cn(), Zustand 5 |
+| `api-security` | CORS, auth, rate limiting | Explicit allowlists, token-bucket, JWT algorithm validation |
+| `controller` | API endpoints, DTOs | Zod v4, `as const` error codes, OpenAPI 3.0, standard error shape |
+| `service-layer` | Business logic | DI/IoC via interfaces, `DomainException`, no SQL, no HTTP |
+| `repository` | Database operations | No `SELECT *`, cursor pagination, transactions, PG error mapping |
+| `migration` | Schema changes | `COMMENT ON COLUMN` required, FK indexes, reversible with `down` |
+| `observability` | Logging, metrics | Trace-ID every log line, structured JSON, no PII |
+| `qa` | Tests | `test.each` for edge cases, Playwright POM, ≥85% branch coverage |
+| `skill-creator` | Creating new skills | Template, naming conventions, checklist |
 
-## Release a new version
+---
 
-```bash
-git tag v1.0.0
-git push origin v1.0.0
+## How It Works
+
+Once installed, tell your agent to read `AGENTS.md` before working on any layer. The agent finds the matching skill trigger, reads that `SKILL.md`, and follows its rules for the duration of the task.
+
+```
+You: "create the user registration endpoint"
+Agent: reads AGENTS.md → loads controller + service-layer + repository skills
+Agent: uses Zod v4 DTO, delegates to service, service throws DomainException,
+       repository maps PG errors, all logs carry Trace-ID
 ```
 
-GitHub Actions runs GoReleaser, builds binaries for macOS + Linux (amd64/arm64), and updates the Homebrew tap automatically.
+---
 
-## Setup (first time)
+## Releasing a New Version
 
-1. Push a tag — GoReleaser builds the binaries and writes `Formula/mr-agent-ai.rb` directly into this repo.
-2. No extra secrets or repos needed — uses the built-in `GITHUB_TOKEN`.
+```bash
+git tag v1.x.x
+git push origin v1.x.x
+```
+
+GitHub Actions builds binaries for macOS + Linux (amd64/arm64) and updates the Homebrew formula automatically.
+
+---
+
+<div align="center">
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT"></a>
+</div>
