@@ -5,21 +5,21 @@
 class MrAgentAi < Formula
   desc "Multi-Agent AI Skill Installer — installs agent skills into any project."
   homepage "https://github.com/SaidHernandez/mr-agent-ai"
-  version "1.0.0"
+  version "1.5.0"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v1.0.0/mr-agent-ai_1.0.0_darwin_amd64.tar.gz"
-      sha256 "54bbee5ec75d53fa7174983c9d8b917598285a61df98e64b65cc05e9ad5b28f2"
+      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v1.5.0/mr-agent-ai_1.5.0_darwin_amd64.tar.gz"
+      sha256 "ddfb1f9daa2b37550ba9302b38c1573e9eaea1aa9d9e1a5d29e8c6d90676c797"
 
       define_method(:install) do
         bin.install "mr-agent-ai"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v1.0.0/mr-agent-ai_1.0.0_darwin_arm64.tar.gz"
-      sha256 "7587f21222cd0363dabb9e8a267cf4f2baa40c3fa1d9bcb8c95514c9849cb7da"
+      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v1.5.0/mr-agent-ai_1.5.0_darwin_arm64.tar.gz"
+      sha256 "48b9d25c253d43ac979b1f186788a056e123f4e7bcecbec129d0dd01fda3a8c6"
 
       define_method(:install) do
         bin.install "mr-agent-ai"
@@ -29,15 +29,15 @@ class MrAgentAi < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v1.0.0/mr-agent-ai_1.0.0_linux_amd64.tar.gz"
-      sha256 "bdc508955edcd6a285e4b426b21409363c5f035e29c93f0acaad3da223f256e4"
+      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v1.5.0/mr-agent-ai_1.5.0_linux_amd64.tar.gz"
+      sha256 "9018b5c5f0ee4526cf63dc175708134a0f8080e0238d61bc824550747b811ab5"
       define_method(:install) do
         bin.install "mr-agent-ai"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v1.0.0/mr-agent-ai_1.0.0_linux_arm64.tar.gz"
-      sha256 "81837fe3c8dd33e8393e3664e4cc52ccb5ad1efa1c79eeaff2edfdfbeb5d8955"
+      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v1.5.0/mr-agent-ai_1.5.0_linux_arm64.tar.gz"
+      sha256 "eaaab6ed48e90763954c62639f8f09ab2db0f673bf218443a9f34d199da84248"
       define_method(:install) do
         bin.install "mr-agent-ai"
       end
