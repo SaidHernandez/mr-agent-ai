@@ -63,27 +63,54 @@ cd my-project
 mr-agent-ai install
 ```
 
-The CLI prompts you to select which skills to install:
+First, pick your AI coding tools:
 
 ```
-  Install orchestrator       — Central coordination agent [Y/n]:
-  Install frontend           — React 19, Tailwind, Zustand, XSS prevention [Y/n]:
-  Install api-security       — CORS, rate limiting, JWT [Y/n]:
-  Install controller         — Zod v4 DTOs, OpenAPI, error responses [Y/n]:
-  Install service-layer      — Business logic, DI/IoC, domain exceptions [Y/n]:
-  Install repository         — SQL optimization, transactions, idempotency [Y/n]:
-  Install migration          — PostgreSQL schema design, indexing [Y/n]:
-  Install observability      — Structured logging, Trace-ID propagation [Y/n]:
-  Install qa                 — Unit tests, Playwright POM, minimal mocking [Y/n]:
-  Install skill-creator      — Creates new agent skills [Y/n]:
+Select your AI coding tools:
+
+   1.  Claude Code    — Anthropic CLI — reads AGENTS.md automatically
+   2.  Cursor         — AI editor — .cursor/rules/<skill>.mdc per skill
+   3.  GitHub Copilot — VS Code / JetBrains — .github/copilot-instructions.md
+   4.  Windsurf       — Codeium editor — .windsurfrules
+   5.  Cline          — VS Code extension — .clinerules
+   6.  Aider          — Terminal pair programmer — CONVENTIONS.md
+   7.  Continue       — Open-source VS Code / JetBrains — .continuerules
+   8.  OpenCode       — SST terminal AI coder — AGENTS.md compatible
+
+  Enter numbers (e.g. 1,3 or 'all'): 1,2
+```
+
+Then, pick which skills to install:
+
+```
+Select which skills to install:
+
+   1.  orchestrator   — Central coordination agent
+   2.  frontend       — React 19, Tailwind, Zustand, XSS prevention
+   3.  api-security   — CORS, rate limiting, JWT
+   4.  controller     — Zod v4 DTOs, OpenAPI, error responses
+   5.  service-layer  — Business logic, DI/IoC, domain exceptions
+   6.  repository     — SQL optimization, transactions, idempotency
+   7.  migration      — PostgreSQL schema design, indexing
+   8.  observability  — Structured logging, Trace-ID propagation
+   9.  qa             — Unit tests, Playwright POM, minimal mocking
+  10.  skill-creator  — Creates new agent skills
+
+  Enter numbers (e.g. 1,3 or 'all'): all
 ```
 
 Result in your project:
 
 ```
 my-project/
-├── AGENTS.md                          ← load this first — skill index
-└── skills/
+├── AGENTS.md                          ← Claude Code / OpenCode index
+├── .cursor/rules/                     ← Cursor (one .mdc per skill)
+├── .github/copilot-instructions.md    ← GitHub Copilot
+├── .windsurfrules                     ← Windsurf
+├── .clinerules                        ← Cline
+├── CONVENTIONS.md                     ← Aider
+├── .continue/rules.md                 ← Continue
+└── skills/                            ← source of truth for all tools
     ├── orchestrator/SKILL.md
     ├── frontend/SKILL.md
     ├── api-security/SKILL.md
@@ -133,12 +160,22 @@ Agent: uses Zod v4 DTO, delegates to service, service throws DomainException,
 
 ## Releasing a New Version
 
-```bash
-git tag v1.x.x
-git push origin v1.x.x
-```
+Tags and releases are created automatically on every merge to `main` using [conventional commits](https://www.conventionalcommits.org):
+
+| Commit prefix | Version bump |
+|---------------|-------------|
+| `feat!:` / `BREAKING CHANGE` | major |
+| `feat:` | minor |
+| `fix:` / `perf:` | patch |
+| `chore:` / `docs:` / `ci:` | no release |
 
 GitHub Actions builds binaries for macOS + Linux (amd64/arm64) and updates the Homebrew formula automatically.
+
+---
+
+## Credits
+
+Skill structure and conventions inspired by [Gentleman-Skills]
 
 ---
 
