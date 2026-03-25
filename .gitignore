@@ -1,0 +1,16 @@
+# Binary
+mr-agent-ai
+dist/
+
+# Go
+*.exe
+*.test
+*.out
+coverage.txt
+
+# macOS
+.DS_Store
+
+# Environment
+.env
+.env.local

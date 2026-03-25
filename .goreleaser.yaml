@@ -1,0 +1,55 @@
+version: 2
+
+project_name: mr-agent-ai
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: mr-agent-ai
+    main: .
+    binary: mr-agent-ai
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+
+archives:
+  - id: mr-agent-ai
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format: tar.gz
+    files:
+      - LICENSE
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+
+brews:
+  - name: mr-agent-ai
+    repository:
+      owner: "{{ .Env.HOMEBREW_TAP_OWNER }}"
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: "https://github.com/{{ .Env.HOMEBREW_TAP_OWNER }}/mr-agent-ai"
+    description: "Multi-Agent AI Skill Installer — installs agent skills into any project."
+    license: MIT
+    install: |
+      bin.install "mr-agent-ai"
+    test: |
+      system "#{bin}/mr-agent-ai", "--help"
