@@ -1,6 +1,6 @@
 <div align="center">
 
-<pre>
+<pre style="font-family:'Courier New',Courier,monospace;line-height:1.2">
   __  __ ____        _                    _         _    ___
  |  \/  |  _ \      / \   __ _  ___ _ __ | |_      / \  |_ _|
  | |\/| | |_) |    / _ \ / _`\|/ _ \ '_ \| __|    / _ \  | |
