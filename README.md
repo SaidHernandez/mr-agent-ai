@@ -1,6 +1,4 @@
-<div align="center">
-
-<pre style="font-family:'Courier New',Courier,monospace;line-height:1.2">
+```
   __  __ ____        _                    _         _    ___
  |  \/  |  _ \      / \   __ _  ___ _ __ | |_      / \  |_ _|
  | |\/| | |_) |    / _ \ / _`\|/ _ \ '_ \| __|    / _ \  | |
@@ -8,7 +6,9 @@
  |_|  |_|_| \_\  /_/   \_\__, |\___|_| |_|\__|  /_/   \_\___|
                           |___/
   Multi-Agent Skill Installer
-</pre>
+```
+
+<div align="center">
 
 <p><strong>One command. Any project. Instant multi-agent skills.</strong></p>
 
