@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -115,37 +116,135 @@ var agents = []Agent{
 	},
 }
 
-// Install runs interactively: asks which skills to install, then writes them.
+// AgentTool represents a supported AI coding tool that can consume the installed skills.
+type AgentTool struct {
+	Name        string
+	Description string
+	Generate    func(targetDir string, selected []Agent) error
+}
+
+var agentTools = []AgentTool{
+	{
+		Name:        "Claude Code",
+		Description: "Anthropic CLI — reads AGENTS.md + skills/ automatically",
+		Generate:    generateClaudeCode,
+	},
+	{
+		Name:        "Cursor",
+		Description: "AI editor — .cursor/rules/<skill>.mdc per skill",
+		Generate:    generateCursor,
+	},
+	{
+		Name:        "GitHub Copilot",
+		Description: "VS Code / JetBrains — .github/copilot-instructions.md",
+		Generate:    generateCopilot,
+	},
+	{
+		Name:        "Windsurf",
+		Description: "Codeium editor — .windsurfrules",
+		Generate:    generateWindsurf,
+	},
+	{
+		Name:        "Cline",
+		Description: "VS Code extension — .clinerules",
+		Generate:    generateCline,
+	},
+	{
+		Name:        "Aider",
+		Description: "Terminal pair programmer — CONVENTIONS.md",
+		Generate:    generateAider,
+	},
+	{
+		Name:        "Continue",
+		Description: "Open-source VS Code / JetBrains — .continuerules",
+		Generate:    generateContinue,
+	},
+	{
+		Name:        "OpenCode",
+		Description: "SST terminal AI coder — AGENTS.md compatible",
+		Generate:    generateOpenCode,
+	},
+}
+
+// promptSelect shows a numbered list and returns the selected indices.
+// Empty input or "all" selects everything.
+func promptSelect(reader *bufio.Reader, title string, items []string) []int {
+	fmt.Printf("%s\n\n", title)
+	for i, item := range items {
+		fmt.Printf("  %2d.  %s\n", i+1, item)
+	}
+	fmt.Print("\n  Enter numbers (e.g. 1,3 or 'all'): ")
+
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(strings.ToLower(input))
+
+	if input == "" || input == "all" {
+		var all []int
+		for i := range items {
+			all = append(all, i)
+		}
+		return all
+	}
+
+	seen := map[int]bool{}
+	var indices []int
+	for _, part := range strings.Split(input, ",") {
+		n, err := strconv.Atoi(strings.TrimSpace(part))
+		if err != nil || n < 1 || n > len(items) || seen[n-1] {
+			continue
+		}
+		seen[n-1] = true
+		indices = append(indices, n-1)
+	}
+	return indices
+}
+
+// Install runs interactively: asks which tools and skills to install, then writes them.
 func Install(targetDir string) error {
 	printBanner()
 
 	reader := bufio.NewReader(os.Stdin)
-	var selected []Agent
 
-	fmt.Println("Select which skills to install (Enter = yes, n = skip):\n")
-
-	for _, a := range agents {
-		fmt.Printf("  Install %-18s — %s [Y/n]: ", a.Name, a.Description)
-		input, _ := reader.ReadString('\n')
-		input = strings.TrimSpace(strings.ToLower(input))
-		if input == "" || input == "y" || input == "yes" {
-			selected = append(selected, a)
-		}
+	// Step 1: select AI tools
+	toolLabels := make([]string, len(agentTools))
+	for i, t := range agentTools {
+		toolLabels[i] = fmt.Sprintf("%-14s — %s", t.Name, t.Description)
+	}
+	toolIndices := promptSelect(reader, "Select your AI coding tools:", toolLabels)
+	if len(toolIndices) == 0 {
+		fmt.Println("\n[mr-agent-ai] No tools selected. Nothing installed.")
+		return nil
+	}
+	var selectedTools []AgentTool
+	for _, i := range toolIndices {
+		selectedTools = append(selectedTools, agentTools[i])
 	}
 
-	if len(selected) == 0 {
+	// Step 2: select skills
+	agentLabels := make([]string, len(agents))
+	for i, a := range agents {
+		agentLabels[i] = fmt.Sprintf("%-18s — %s", a.Name, a.Description)
+	}
+	skillIndices := promptSelect(reader, "\nSelect which skills to install:", agentLabels)
+	if len(skillIndices) == 0 {
 		fmt.Println("\n[mr-agent-ai] No skills selected. Nothing installed.")
 		return nil
 	}
+	var selected []Agent
+	for _, i := range skillIndices {
+		selected = append(selected, agents[i])
+	}
 
-	fmt.Printf("\n[mr-agent-ai] Installing %d skill(s) into: %s\n\n", len(selected), targetDir)
 
+	fmt.Printf("\n[mr-agent-ai] Installing %d skill(s) for %d tool(s) into: %s\n\n",
+		len(selected), len(selectedTools), targetDir)
+
+	// Step 3: write skills/ directory (source of truth for all tools)
 	for _, a := range selected {
 		skillDir := filepath.Join(targetDir, "skills", a.Dir)
 		if err := os.MkdirAll(skillDir, 0755); err != nil {
 			return fmt.Errorf("failed to create skills/%s: %w", a.Dir, err)
 		}
-
 		skillPath := filepath.Join(skillDir, "SKILL.md")
 		if err := os.WriteFile(skillPath, []byte(a.Content()), 0644); err != nil {
 			return fmt.Errorf("failed to write skills/%s/SKILL.md: %w", a.Dir, err)
@@ -165,15 +264,132 @@ func Install(targetDir string) error {
 		}
 	}
 
-	agentsPath := filepath.Join(targetDir, "AGENTS.md")
-	if err := os.WriteFile(agentsPath, []byte(agentsIndex(selected)), 0644); err != nil {
+	// Step 4: generate tool-specific config files
+	fmt.Println()
+	for _, t := range selectedTools {
+		if err := t.Generate(targetDir, selected); err != nil {
+			return fmt.Errorf("failed to generate config for %s: %w", t.Name, err)
+		}
+	}
+
+	fmt.Printf("\n[mr-agent-ai] Done. %d skill(s) installed for %d tool(s).\n",
+		len(selected), len(selectedTools))
+	fmt.Println("\nNext: tell your AI agent to read the generated config file before writing any code.")
+	return nil
+}
+
+// ─── Agent tool generators ─────────────────────────────────────────────────────
+
+func generateClaudeCode(targetDir string, selected []Agent) error {
+	path := filepath.Join(targetDir, "AGENTS.md")
+	if err := os.WriteFile(path, []byte(agentsIndex(selected)), 0644); err != nil {
 		return fmt.Errorf("failed to write AGENTS.md: %w", err)
 	}
-	fmt.Printf("  [ok] AGENTS.md\n")
-
-	fmt.Printf("\n[mr-agent-ai] Done. %d skill(s) installed.\n", len(selected))
-	fmt.Println("\nNext: tell your AI agent to read AGENTS.md before writing any code.")
+	fmt.Println("  [ok] AGENTS.md  (Claude Code)")
 	return nil
+}
+
+func generateCursor(targetDir string, selected []Agent) error {
+	rulesDir := filepath.Join(targetDir, ".cursor", "rules")
+	if err := os.MkdirAll(rulesDir, 0755); err != nil {
+		return err
+	}
+	for _, a := range selected {
+		content := "---\ndescription: " + a.Trigger + "\nglobs: \nalwaysApply: false\n---\n\n" + a.Content()
+		path := filepath.Join(rulesDir, a.Name+".mdc")
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			return err
+		}
+		fmt.Printf("  [ok] .cursor/rules/%s.mdc\n", a.Name)
+	}
+	return nil
+}
+
+func generateCopilot(targetDir string, selected []Agent) error {
+	dir := filepath.Join(targetDir, ".github")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+	path := filepath.Join(dir, "copilot-instructions.md")
+	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil {
+		return err
+	}
+	fmt.Println("  [ok] .github/copilot-instructions.md  (GitHub Copilot)")
+	return nil
+}
+
+func generateWindsurf(targetDir string, selected []Agent) error {
+	path := filepath.Join(targetDir, ".windsurfrules")
+	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil {
+		return err
+	}
+	fmt.Println("  [ok] .windsurfrules  (Windsurf)")
+	return nil
+}
+
+func generateCline(targetDir string, selected []Agent) error {
+	path := filepath.Join(targetDir, ".clinerules")
+	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil {
+		return err
+	}
+	fmt.Println("  [ok] .clinerules  (Cline)")
+	return nil
+}
+
+func generateAider(targetDir string, selected []Agent) error {
+	path := filepath.Join(targetDir, "CONVENTIONS.md")
+	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil {
+		return err
+	}
+	fmt.Println("  [ok] CONVENTIONS.md  (Aider)")
+	return nil
+}
+
+func generateContinue(targetDir string, selected []Agent) error {
+	dir := filepath.Join(targetDir, ".continue")
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return err
+	}
+	path := filepath.Join(dir, "rules.md")
+	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil {
+		return err
+	}
+	fmt.Println("  [ok] .continue/rules.md  (Continue)")
+	return nil
+}
+
+func generateOpenCode(targetDir string, selected []Agent) error {
+	path := filepath.Join(targetDir, "AGENTS.md")
+	if _, err := os.Stat(path); err == nil {
+		fmt.Println("  [ok] AGENTS.md  (OpenCode — already written by Claude Code)")
+		return nil
+	}
+	if err := os.WriteFile(path, []byte(agentsIndex(selected)), 0644); err != nil {
+		return fmt.Errorf("failed to write AGENTS.md: %w", err)
+	}
+	fmt.Println("  [ok] AGENTS.md  (OpenCode)")
+	return nil
+}
+
+
+// combinedContent merges all selected skills into a single markdown document.
+// Used by tools that read a single config file (Copilot, Windsurf, Cline, Aider, Continue).
+func combinedContent(selected []Agent) string {
+	var sb strings.Builder
+	sb.WriteString("# Agent Skills\n\n")
+	sb.WriteString("> Generated by mr-agent-ai. Read the relevant section before writing any code for that layer.\n\n")
+	sb.WriteString("## How to Use\n\n")
+	sb.WriteString("1. Find the skill whose trigger matches your current task.\n")
+	sb.WriteString("2. Follow every rule in that section without exception.\n")
+	sb.WriteString("3. Multiple skills can be active simultaneously.\n\n")
+	sb.WriteString("---\n\n")
+	for _, a := range selected {
+		sb.WriteString("## " + a.Name + "\n\n")
+		sb.WriteString("**Trigger:** " + a.Trigger + "\n\n")
+		sb.WriteString(a.Content())
+		sb.WriteString("\n\n---\n\n")
+	}
+	return sb.String()
 }
 
 func printBanner() {
