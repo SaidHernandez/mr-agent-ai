@@ -43,10 +43,11 @@ changelog:
 brews:
   - name: mr-agent-ai
     repository:
-      owner: "{{ .Env.HOMEBREW_TAP_OWNER }}"
-      name: homebrew-tap
-      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
-    homepage: "https://github.com/{{ .Env.HOMEBREW_TAP_OWNER }}/mr-agent-ai"
+      owner: SaidHernandez
+      name: mr-agent-ai
+      token: "{{ .Env.GITHUB_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/SaidHernandez/mr-agent-ai"
     description: "Multi-Agent AI Skill Installer — installs agent skills into any project."
     license: MIT
     install: |

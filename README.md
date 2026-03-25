@@ -5,7 +5,7 @@ Multi-Agent AI Skill Installer. Installs agent skills into any project with a si
 ## Install
 
 ```bash
-brew tap <your-user>/homebrew-tap
+brew tap SaidHernandez/mr-agent-ai https://github.com/SaidHernandez/mr-agent-ai
 brew install mr-agent-ai
 ```
 
@@ -65,6 +65,5 @@ GitHub Actions runs GoReleaser, builds binaries for macOS + Linux (amd64/arm64),
 
 ## Setup (first time)
 
-1. Create a `homebrew-tap` repo under your GitHub account.
-2. Add `HOMEBREW_TAP_TOKEN` to your repo secrets — a PAT with `repo` scope on the tap repo.
-3. Push a tag — GoReleaser handles the rest.
+1. Push a tag — GoReleaser builds the binaries and writes `Formula/mr-agent-ai.rb` directly into this repo.
+2. No extra secrets or repos needed — uses the built-in `GITHUB_TOKEN`.
