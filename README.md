@@ -25,11 +25,14 @@
 
 ## What It Does
 
-Mr. Agent AI installs a set of **agent skills** — structured instruction sets — directly into your project. Each skill teaches your AI coding agent how to handle a specific layer of your stack: React frontend, API security, controllers, services, repositories, migrations, observability, and QA.
+Mr. Agent AI installs a set of **agent skills** — structured instruction sets — directly into your project. Skills are organized in two categories:
+
+- **Architecture skills** — teach your agent how to handle each layer of your stack: API security, controllers, services, repositories, migrations, observability, and QA.
+- **Language & framework skills** — teach your agent the best practices for your chosen stack: React, Vue, TypeScript, Java, Python, or Go.
 
 **Before**: Your AI agent writes generic code with no project context.
 
-**After**: Your agent reads the relevant skill before touching any layer, follows your architecture, propagates Trace-IDs, uses Zod v4, applies the standard error shape, and knows when NOT to put logic in the wrong layer.
+**After**: Your agent reads the relevant skill before touching any layer, follows your architecture, propagates Trace-IDs, applies the standard error shape, and knows when NOT to put logic in the wrong layer.
 
 ---
 
@@ -38,7 +41,6 @@ Mr. Agent AI installs a set of **agent skills** — structured instruction sets 
 AI agents are powerful but context-blind by default. Skills give them the rules they need before writing a single line of code — so they stop inventing patterns and start following yours.
 
 - No more `useMemo` in React 19 projects
-- No more `z.string().email()` when you're on Zod v4
 - No more business logic leaking into controllers
 - No more raw DB errors surfacing to the API
 - No more logs without Trace-IDs
@@ -63,7 +65,7 @@ cd my-project
 mr-agent-ai install
 ```
 
-First, pick your AI coding tools:
+**Step 1** — pick your AI coding tools:
 
 ```
 Select your AI coding tools:
@@ -77,26 +79,40 @@ Select your AI coding tools:
    7.  Continue       — Open-source VS Code / JetBrains — .continuerules
    8.  OpenCode       — SST terminal AI coder — AGENTS.md compatible
 
-  Enter numbers (e.g. 1,3 or 'all'): 1,2
+  Enter numbers (e.g. 1,3 or 'all'): 1
 ```
 
-Then, pick which skills to install:
+**Step 2** — pick your architecture skills:
 
 ```
-Select which skills to install:
+Select which architecture skills to install:
 
-   1.  orchestrator   — Central coordination agent
-   2.  frontend       — React 19, Tailwind, Zustand, XSS prevention
-   3.  api-security   — CORS, rate limiting, JWT
-   4.  controller     — Zod v4 DTOs, OpenAPI, error responses
-   5.  service-layer  — Business logic, DI/IoC, domain exceptions
-   6.  repository     — SQL optimization, transactions, idempotency
-   7.  migration      — PostgreSQL schema design, indexing
-   8.  observability  — Structured logging, Trace-ID propagation
-   9.  qa             — Unit tests, Playwright POM, minimal mocking
-  10.  skill-creator  — Creates new agent skills
+   1.  orchestrator   — Coordinates agents, delegates tasks, manages state.
+   2.  api-security   — CORS, rate-limiting, JWT authentication patterns.
+   3.  controller     — API endpoints, DTOs, standard error responses.
+   4.  service-layer  — Business logic, DI/IoC, domain exceptions.
+   5.  repository     — SQL queries, transactions, DB error mapping.
+   6.  migration      — PostgreSQL schema design, indexes, migrations.
+   7.  observability  — Structured logging, Trace-ID propagation.
+   8.  qa             — Unit and E2E tests, Playwright, coverage.
+   9.  skill-creator  — Creates new skills following the standard spec.
 
   Enter numbers (e.g. 1,3 or 'all'): all
+```
+
+**Step 3** — pick a language or framework skill (optional, single choice):
+
+```
+Select a programming language skill (optional):
+
+   1.  react       — React 19, Zustand, Tailwind, Server Components.
+   2.  vue         — Vue 3, Composition API, Pinia, composables.
+   3.  typescript  — Strict mode, type inference, type guards.
+   4.  java        — Optional, null safety, clean API design.
+   5.  python      — Type hints, Pythonic patterns, error handling.
+   6.  golang      — Error handling, goroutines, idiomatic Go.
+
+  Enter a number (or press Enter to skip): 1
 ```
 
 Result in your project:
@@ -110,30 +126,33 @@ my-project/
 ├── .clinerules                        ← Cline
 ├── CONVENTIONS.md                     ← Aider
 ├── .continue/rules.md                 ← Continue
-└── skills/                            ← source of truth for all tools
-    ├── orchestrator/SKILL.md
-    ├── frontend/SKILL.md
-    ├── api-security/SKILL.md
-    ├── controller/SKILL.md
-    │   └── assets/ERROR_RESPONSE.ts
-    ├── service-layer/SKILL.md
-    ├── repository/SKILL.md
-    ├── migration/SKILL.md
-    │   └── assets/MIGRATION_TEMPLATE.sql
-    ├── observability/SKILL.md
-    ├── qa/SKILL.md
-    └── skill-creator/SKILL.md
-        └── assets/SKILL-TEMPLATE.md
+└── skills/
+    ├── arch/                          ← architecture skills
+    │   ├── orchestrator/SKILL.md
+    │   ├── api-security/SKILL.md
+    │   ├── controller/SKILL.md
+    │   │   └── assets/ERROR_RESPONSE.ts
+    │   ├── service-layer/SKILL.md
+    │   ├── repository/SKILL.md
+    │   ├── migration/SKILL.md
+    │   │   └── assets/MIGRATION_TEMPLATE.sql
+    │   ├── observability/SKILL.md
+    │   ├── qa/SKILL.md
+    │   └── skill-creator/SKILL.md
+    │       └── assets/SKILL-TEMPLATE.md
+    └── lang/                          ← language / framework skill
+        └── react/SKILL.md
 ```
 
 ---
 
 ## Skills
 
+### Architecture
+
 | Skill | Trigger | Key Rules |
 |-------|---------|-----------|
 | `orchestrator` | Coordinating multiple agents | Trace-ID generation, no business logic |
-| `frontend` | React components, design systems | React 19 Compiler, no manual memoization, Tailwind cn(), Zustand 5 |
 | `api-security` | CORS, auth, rate limiting | Explicit allowlists, token-bucket, JWT algorithm validation |
 | `controller` | API endpoints, DTOs | Zod v4, `as const` error codes, OpenAPI 3.0, standard error shape |
 | `service-layer` | Business logic | DI/IoC via interfaces, `DomainException`, no SQL, no HTTP |
@@ -142,6 +161,17 @@ my-project/
 | `observability` | Logging, metrics | Trace-ID every log line, structured JSON, no PII |
 | `qa` | Tests | `test.each` for edge cases, Playwright POM, ≥85% branch coverage |
 | `skill-creator` | Creating new skills | Template, naming conventions, checklist |
+
+### Language & Framework
+
+| Skill | Key Rules |
+|-------|-----------|
+| `react` | React 19 Compiler, no manual memoization, Zustand 5, Tailwind cn() |
+| `vue` | Composition API, `<script setup>`, Pinia + storeToRefs, composables |
+| `typescript` | Strict mode, no `any`, `as const`, explicit return types |
+| `java` | Optional as return type only, orElseThrow, no nested Optionals |
+| `python` | Type hints, no mutable defaults, context managers, specific exceptions |
+| `golang` | Handle all errors, defer cleanup, small interfaces, context propagation |
 
 ---
 
@@ -164,7 +194,7 @@ Tags and releases are created automatically on every merge to `main` using [conv
 
 | Commit prefix | Version bump |
 |---------------|-------------|
-| `feat!:` / `BREAKING CHANGE` | major |
+| `BREAKING CHANGE` in body | major |
 | `feat:` | minor |
 | `fix:` / `perf:` | patch |
 | `chore:` / `docs:` / `ci:` | no release |
@@ -175,7 +205,7 @@ GitHub Actions builds binaries for macOS + Linux (amd64/arm64) and updates the H
 
 ## Credits
 
-Skill structure and conventions inspired by [Gentleman-Skills]
+Skill structure and conventions inspired by [Gentleman-Skills](https://github.com/Gentleman-Programming/Gentleman-Skills).
 
 ---
 
