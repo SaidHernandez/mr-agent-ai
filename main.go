@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"mr-agent-ai/installer/internal/installer"
+	"mr-agent-ai/internal/installer"
 
 	"github.com/spf13/cobra"
 )

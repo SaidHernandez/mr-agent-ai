@@ -14,8 +14,8 @@ func Install(targetDir string) error {
 	reader := bufio.NewReader(os.Stdin)
 
 	// Step 1: select AI coding tools
-	toolLabels := make([]string, len(agentTools))
-	for i, t := range agentTools {
+	toolLabels := make([]string, len(tools))
+	for i, t := range tools {
 		toolLabels[i] = fmt.Sprintf("%-14s — %s", t.Name, t.Description)
 	}
 	toolIndices := promptSelect(reader, "Select your AI coding tools:", toolLabels)
@@ -23,35 +23,45 @@ func Install(targetDir string) error {
 		fmt.Println("\n[mr-agent-ai] No tools selected. Nothing installed.")
 		return nil
 	}
-	var selectedTools []AgentTool
+	var selectedTools []Tool
 	for _, i := range toolIndices {
-		selectedTools = append(selectedTools, agentTools[i])
+		selectedTools = append(selectedTools, tools[i])
 	}
 
-	// Step 2: select skills
-	agentLabels := make([]string, len(agents))
-	for i, a := range agents {
-		agentLabels[i] = fmt.Sprintf("%-18s — %s", a.Name, a.Description)
+	// Step 2: select architecture skills
+	archLabels := make([]string, len(archSkills))
+	for i, s := range archSkills {
+		archLabels[i] = fmt.Sprintf("%-18s — %s", s.Name, s.Description)
 	}
-	skillIndices := promptSelect(reader, "\nSelect which skills to install:", agentLabels)
-	if len(skillIndices) == 0 {
+	archIndices := promptSelect(reader, "\nSelect which architecture skills to install:", archLabels)
+	if len(archIndices) == 0 {
 		fmt.Println("\n[mr-agent-ai] No skills selected. Nothing installed.")
 		return nil
 	}
-	var selected []Agent
-	for _, i := range skillIndices {
-		selected = append(selected, agents[i])
+	var selected []Skill
+	for _, i := range archIndices {
+		selected = append(selected, archSkills[i])
+	}
+
+	// Step 3: select programming language skill (single choice, optional)
+	langLabels := make([]string, len(langSkills))
+	for i, l := range langSkills {
+		langLabels[i] = fmt.Sprintf("%-14s — %s", l.Name, l.Description)
+	}
+	langIdx := promptSelectOne(reader, "\nSelect a programming language skill (optional):", langLabels)
+	if langIdx >= 0 {
+		selected = append(selected, langSkills[langIdx])
 	}
 
 	fmt.Printf("\n[mr-agent-ai] Installing %d skill(s) for %d tool(s) into: %s\n\n",
 		len(selected), len(selectedTools), targetDir)
 
-	// Step 3: write skills/ directory — source of truth for all tools
+	// Step 4: write skills/ directory — source of truth for all tools
 	if err := writeSkills(targetDir, selected); err != nil {
 		return err
 	}
 
-	// Step 4: generate tool-specific config files
+	// Step 5: generate tool-specific config files
 	fmt.Println()
 	for _, t := range selectedTools {
 		if err := t.Generate(targetDir, selected); err != nil {
@@ -65,29 +75,29 @@ func Install(targetDir string) error {
 	return nil
 }
 
-// writeSkills writes each selected skill's SKILL.md and assets to skills/<name>/.
-func writeSkills(targetDir string, selected []Agent) error {
-	for _, a := range selected {
-		skillDir := filepath.Join(targetDir, "skills", a.Dir)
+// writeSkills writes each selected skill's SKILL.md and assets to skills/<dir>/.
+func writeSkills(targetDir string, selected []Skill) error {
+	for _, s := range selected {
+		skillDir := filepath.Join(targetDir, "skills", s.Dir)
 		if err := os.MkdirAll(skillDir, 0755); err != nil {
-			return fmt.Errorf("failed to create skills/%s: %w", a.Dir, err)
+			return fmt.Errorf("failed to create skills/%s: %w", s.Dir, err)
 		}
 		skillPath := filepath.Join(skillDir, "SKILL.md")
-		if err := os.WriteFile(skillPath, []byte(a.Content()), 0644); err != nil {
-			return fmt.Errorf("failed to write skills/%s/SKILL.md: %w", a.Dir, err)
+		if err := os.WriteFile(skillPath, []byte(s.Content()), 0644); err != nil {
+			return fmt.Errorf("failed to write skills/%s/SKILL.md: %w", s.Dir, err)
 		}
-		fmt.Printf("  [ok] skills/%s/SKILL.md\n", a.Dir)
+		fmt.Printf("  [ok] skills/%s/SKILL.md\n", s.Dir)
 
-		for _, asset := range a.Assets {
+		for _, asset := range s.Assets {
 			assetDir := filepath.Join(skillDir, "assets")
 			if err := os.MkdirAll(assetDir, 0755); err != nil {
-				return fmt.Errorf("failed to create assets dir for %s: %w", a.Dir, err)
+				return fmt.Errorf("failed to create assets dir for %s: %w", s.Dir, err)
 			}
 			assetPath := filepath.Join(assetDir, asset.Path)
 			if err := os.WriteFile(assetPath, []byte(asset.Content), 0644); err != nil {
 				return fmt.Errorf("failed to write asset %s: %w", asset.Path, err)
 			}
-			fmt.Printf("  [ok] skills/%s/assets/%s\n", a.Dir, asset.Path)
+			fmt.Printf("  [ok] skills/%s/assets/%s\n", s.Dir, asset.Path)
 		}
 	}
 	return nil
