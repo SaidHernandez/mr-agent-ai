@@ -1,4 +1,4 @@
-module mr-agent-ai/installer
+module mr-agent-ai
 
 go 1.21
 
