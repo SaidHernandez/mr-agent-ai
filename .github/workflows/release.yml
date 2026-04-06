@@ -74,3 +74,57 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Homebrew formula
+        if: steps.bump.outputs.bump != 'none' && steps.tag.outputs.new_tag != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_TAG: ${{ steps.tag.outputs.new_tag }}
+        run: |
+          VERSION=${NEW_TAG#v}
+
+          CHECKSUMS=$(curl -sL "https://github.com/SaidHernandez/mr-agent-ai/releases/download/${NEW_TAG}/checksums.txt")
+          SHA_ARM64=$(echo "$CHECKSUMS" | grep "darwin_arm64.tar.gz" | awk '{print $1}')
+          SHA_AMD64=$(echo "$CHECKSUMS" | grep "darwin_amd64.tar.gz" | awk '{print $1}')
+
+          cat > Formula/mr-agent-ai.rb <<EOF
+          class MrAgentAi < Formula
+            desc "Multi-Agent AI Skill Installer — installs agent skills into any project."
+            homepage "https://github.com/SaidHernandez/mr-agent-ai"
+            license "MIT"
+            version "${VERSION}"
+
+            on_macos do
+              if Hardware::CPU.arm?
+                url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/${NEW_TAG}/mr-agent-ai_${VERSION}_darwin_arm64.tar.gz"
+                sha256 "${SHA_ARM64}"
+              else
+                url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/${NEW_TAG}/mr-agent-ai_${VERSION}_darwin_amd64.tar.gz"
+                sha256 "${SHA_AMD64}"
+              end
+            end
+
+            def install
+              bin.install "mr-agent-ai"
+            end
+
+            test do
+              system "#{bin}/mr-agent-ai", "--help"
+            end
+          end
+          EOF
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          BRANCH="formula/${NEW_TAG}"
+          git checkout -b "$BRANCH"
+          git add Formula/mr-agent-ai.rb
+          git commit -m "Brew formula update for mr-agent-ai version ${NEW_TAG} [skip ci]"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "Brew formula update for mr-agent-ai version ${NEW_TAG}" \
+            --body "Automated formula update after release ${NEW_TAG}." \
+            --base main \
+            --head "$BRANCH"

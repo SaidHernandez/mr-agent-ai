@@ -63,25 +63,4 @@ changelog:
       - "^ci:"
       - "\\[skip ci\\]"
 
-brews:
-  - name: mr-agent-ai
-    repository:
-      owner: SaidHernandez
-      name: mr-agent-ai
-      token: "{{ .Env.GITHUB_TOKEN }}"
-      pull_request:
-        enabled: true
-        draft: false
-        base:
-          owner: SaidHernandez
-          name: mr-agent-ai
-          branch: main
-    directory: Formula
-    homepage: "https://github.com/SaidHernandez/mr-agent-ai"
-    description: "Multi-Agent AI Skill Installer — installs agent skills into any project."
-    license: MIT
-    install: |
-      bin.install "mr-agent-ai"
-    test: |
-      system "#{bin}/mr-agent-ai", "--help"
 
