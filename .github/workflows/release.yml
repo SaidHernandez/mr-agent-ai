@@ -45,7 +45,7 @@ jobs:
           default_bump: false
           tag_prefix: v
           release_branches: main
-          major_pattern: "/^(feat|fix|refactor|perf)!|BREAKING CHANGE/"
+          custom_release_rules: "feat!:major,fix!:major,refactor!:major,perf!:major,feat:minor,fix:patch,perf:patch,refactor:patch"
 
       - name: Fetch new tag
         if: steps.tag.outputs.new_tag != ''
