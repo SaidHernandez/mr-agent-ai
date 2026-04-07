@@ -58,7 +58,7 @@ brew install mr-agent-ai
 
 ## Usage
 
-Run inside any project:
+### Install skills
 
 ```bash
 cd my-project
@@ -96,6 +96,7 @@ Select which architecture skills to install:
    7.  observability  — Structured logging, Trace-ID propagation.
    8.  qa             — Unit and E2E tests, Playwright, coverage.
    9.  skill-creator  — Creates new skills following the standard spec.
+  10.  supply-chain   — Detects supply chain risks and configures shelf-time protection.
 
   Enter numbers (e.g. 1,3 or 'all'): all
 ```
@@ -114,6 +115,49 @@ Select a programming language skill (optional):
 
   Enter a number (or press Enter to skip): 1
 ```
+
+### Audit supply chain security
+
+Scans the project for missing security configurations and offers to apply fixes:
+
+```bash
+cd my-project
+mr-agent-ai audit
+```
+
+```
+  Supply Chain Audit
+  ──────────────────────────────────────
+
+  Ecosystems   Go · Node.js
+
+  Supply Chain
+  ✓  Dependabot
+  ✗  npm shelf-time         .npmrc → min-release-age=7d
+
+  Secrets
+  ✗  .gitignore             missing: .env · *.pem · *.key
+  ✗  secret scanner         gitleaks or trufflehog not found
+
+  SAST
+  ✗  gosec                  not in CI
+  ✗  CodeQL                 not configured
+
+  ──────────────────────────────────────
+  4 issues
+
+  Available fixes
+  ───────────────
+  1  .gitignore
+  2  .npmrc
+  3  .gitleaks.toml
+  4  .github/workflows/sast.yml
+  5  .github/workflows/codeql.yml
+
+  Apply (1,3 or all) › _
+```
+
+---
 
 Result in your project:
 
@@ -161,6 +205,7 @@ my-project/
 | `observability` | Logging, metrics | Trace-ID every log line, structured JSON, no PII |
 | `qa` | Tests | `test.each` for edge cases, Playwright POM, ≥85% branch coverage |
 | `skill-creator` | Creating new skills | Template, naming conventions, checklist |
+| `supply-chain` | Adding/updating dependencies | Shelf-time configs, red flags, secret scanning, audit commands |
 
 ### Language & Framework
 

@@ -74,6 +74,13 @@ var archSkills = []Skill{
 			{Path: "SKILL-TEMPLATE.md", Content: mustReadAsset("SKILL-TEMPLATE.md")},
 		},
 	},
+	{
+		Name:        "supply-chain",
+		Dir:         "arch/supply-chain",
+		Description: "Detects supply chain risks and configures shelf-time protection.",
+		Trigger:     "When adding or updating dependencies, reviewing dependency PRs, or auditing packages.",
+		Content:     supplyChainSkill,
+	},
 }
 
 // ─── Skill content functions ───────────────────────────────────────────────────
@@ -157,4 +164,13 @@ func skillCreatorSkill() string {
 		"When asked to create a new skill, add agent instructions, or document patterns for AI.",
 		"Read, Edit, Write, Glob, Grep",
 	) + mustReadDoc("arch/skill-creator.md")
+}
+
+func supplyChainSkill() string {
+	return skillFrontmatter(
+		"supply-chain",
+		"Supply chain security agent. Shelf-time configs, dependency review, secret scanning, audit commands.",
+		"When adding dependencies, reviewing dependency update PRs, or auditing packages.",
+		"Read, Glob, Grep, Bash",
+	) + mustReadDoc("arch/supply-chain.md")
 }

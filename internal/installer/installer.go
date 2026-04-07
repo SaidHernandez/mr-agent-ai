@@ -79,22 +79,22 @@ func Install(targetDir string) error {
 func writeSkills(targetDir string, selected []Skill) error {
 	for _, s := range selected {
 		skillDir := filepath.Join(targetDir, "skills", s.Dir)
-		if err := os.MkdirAll(skillDir, 0755); err != nil {
+		if err := os.MkdirAll(skillDir, 0o750); err != nil {
 			return fmt.Errorf("failed to create skills/%s: %w", s.Dir, err)
 		}
 		skillPath := filepath.Join(skillDir, "SKILL.md")
-		if err := os.WriteFile(skillPath, []byte(s.Content()), 0644); err != nil {
+		if err := os.WriteFile(skillPath, []byte(s.Content()), 0644); err != nil { // #nosec G306 -- project files are intentionally world-readable
 			return fmt.Errorf("failed to write skills/%s/SKILL.md: %w", s.Dir, err)
 		}
 		fmt.Printf("  [ok] skills/%s/SKILL.md\n", s.Dir)
 
 		for _, asset := range s.Assets {
 			assetDir := filepath.Join(skillDir, "assets")
-			if err := os.MkdirAll(assetDir, 0755); err != nil {
+			if err := os.MkdirAll(assetDir, 0o750); err != nil {
 				return fmt.Errorf("failed to create assets dir for %s: %w", s.Dir, err)
 			}
 			assetPath := filepath.Join(assetDir, asset.Path)
-			if err := os.WriteFile(assetPath, []byte(asset.Content), 0644); err != nil {
+			if err := os.WriteFile(assetPath, []byte(asset.Content), 0644); err != nil { // #nosec G306 -- project files are intentionally world-readable
 				return fmt.Errorf("failed to write asset %s: %w", asset.Path, err)
 			}
 			fmt.Printf("  [ok] skills/%s/assets/%s\n", s.Dir, asset.Path)
