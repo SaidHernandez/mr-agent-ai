@@ -46,9 +46,9 @@ func RunAudit(dir string) error {
 		printCheck("Dependabot", false, false, "not configured")
 		issues++
 		fixes = append(fixes, auditFix{
-			display:  ".github/dependabot.yml",
-			destPath: ".github/dependabot.yml",
-			template: "audit/dependabot.yml",
+			display:   ".github/dependabot.yml",
+			destPath:  ".github/dependabot.yml",
+			generator: generateDependabotYML,
 		})
 	}
 
@@ -358,10 +358,11 @@ func RunAudit(dir string) error {
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type auditFix struct {
-	display  string
-	destPath string
-	template string
-	append   bool
+	display   string
+	destPath  string
+	template  string
+	append    bool
+	generator func(dir string) string
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -516,8 +517,47 @@ func parseAuditSelection(input string, count int) []int {
 	return selected
 }
 
+func generateDependabotYML(dir string) string {
+	ecosystems := detectEcosystems(dir)
+
+	type ecoEntry struct {
+		pkgEco    string
+		groupName string
+	}
+	ecoMap := map[string]ecoEntry{
+		"Node.js": {"npm", "npm-deps"},
+		"Python":  {"pip", "python-deps"},
+		"Go":      {"gomod", "go-deps"},
+		"Java":    {"maven", "java-deps"},
+	}
+
+	var sb strings.Builder
+	sb.WriteString("version: 2\nupdates:\n")
+
+	for _, eco := range ecosystems {
+		entry, ok := ecoMap[eco]
+		if !ok {
+			continue
+		}
+		sb.WriteString(fmt.Sprintf(
+			"  - package-ecosystem: %s\n    directory: \"/\"\n    schedule:\n      interval: weekly\n    labels:\n      - dependencies\n    groups:\n      %s:\n        patterns:\n          - \"*\"\n\n",
+			entry.pkgEco, entry.groupName,
+		))
+	}
+
+	// always include github-actions
+	sb.WriteString("  - package-ecosystem: github-actions\n    directory: \"/\"\n    schedule:\n      interval: weekly\n    labels:\n      - dependencies\n      - ci\n    groups:\n      actions:\n        patterns:\n          - \"*\"\n")
+
+	return sb.String()
+}
+
 func applyFix(dir string, f auditFix) error {
-	content := mustReadDoc(f.template)
+	var content string
+	if f.generator != nil {
+		content = f.generator(dir)
+	} else {
+		content = mustReadDoc(f.template)
+	}
 	dest := filepath.Join(dir, f.destPath)
 
 	if err := os.MkdirAll(filepath.Dir(dest), 0o750); err != nil {
