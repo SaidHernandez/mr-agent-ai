@@ -2,15 +2,15 @@ class MrAgentAi < Formula
   desc "Multi-Agent AI Skill Installer — installs agent skills into any project."
   homepage "https://github.com/SaidHernandez/mr-agent-ai"
   license "MIT"
-  version "2.0.1"
+  version "2.1.1"
 
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v2.0.1/mr-agent-ai_2.0.1_darwin_arm64.tar.gz"
-      sha256 "4fb5ef379014bfd88e5b1fdc6b98a5eb3a7cb7ac20cf2338a3c98b173d2e29e2"
+      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v2.1.1/mr-agent-ai_2.1.1_darwin_arm64.tar.gz"
+      sha256 "fbf88d1ce19a7092d1841582dde65a9c1514de4cf22fbd8c2b96c2f468850bc5"
     else
-      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v2.0.1/mr-agent-ai_2.0.1_darwin_amd64.tar.gz"
-      sha256 "e543999d4e3041e43a6280964e8e8b32d44863cf525c539d959c19d71f1a0868"
+      url "https://github.com/SaidHernandez/mr-agent-ai/releases/download/v2.1.1/mr-agent-ai_2.1.1_darwin_amd64.tar.gz"
+      sha256 "ca35ddefa6b6c2919f3c22a71903755f83a70dc6913868ed613893763654ef20"
     end
   end
 
