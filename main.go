@@ -37,7 +37,26 @@ Run this command from the root of your project:
 		},
 	}
 
+	auditCmd := &cobra.Command{
+		Use:   "audit",
+		Short: "Scan the current project for supply chain security issues",
+		Long: `Scans the project for missing security configurations and offers to apply fixes.
+
+Run this command from the root of your project:
+
+  cd my-project
+  mr-agent-ai audit`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			targetDir, err := os.Getwd()
+			if err != nil {
+				return fmt.Errorf("cannot determine current directory: %w", err)
+			}
+			return installer.RunAudit(targetDir)
+		},
+	}
+
 	rootCmd.AddCommand(installCmd)
+	rootCmd.AddCommand(auditCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)

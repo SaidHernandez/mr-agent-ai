@@ -61,7 +61,7 @@ var tools = []Tool{
 
 func generateClaudeCode(targetDir string, selected []Skill) error {
 	path := filepath.Join(targetDir, "AGENTS.md")
-	if err := os.WriteFile(path, []byte(agentsIndex(selected)), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(agentsIndex(selected)), 0644); err != nil { // #nosec G306 -- project files are intentionally world-readable
 		return fmt.Errorf("failed to write AGENTS.md: %w", err)
 	}
 	fmt.Println("  [ok] AGENTS.md  (Claude Code)")
@@ -70,13 +70,13 @@ func generateClaudeCode(targetDir string, selected []Skill) error {
 
 func generateCursor(targetDir string, selected []Skill) error {
 	rulesDir := filepath.Join(targetDir, ".cursor", "rules")
-	if err := os.MkdirAll(rulesDir, 0755); err != nil {
+	if err := os.MkdirAll(rulesDir, 0o750); err != nil {
 		return err
 	}
 	for _, a := range selected {
 		content := "---\ndescription: " + a.Trigger + "\nglobs: \nalwaysApply: false\n---\n\n" + a.Content()
 		path := filepath.Join(rulesDir, a.Name+".mdc")
-		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil { // #nosec G306 -- project files are intentionally world-readable
 			return err
 		}
 		fmt.Printf("  [ok] .cursor/rules/%s.mdc\n", a.Name)
@@ -86,11 +86,11 @@ func generateCursor(targetDir string, selected []Skill) error {
 
 func generateCopilot(targetDir string, selected []Skill) error {
 	dir := filepath.Join(targetDir, ".github")
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return err
 	}
 	path := filepath.Join(dir, "copilot-instructions.md")
-	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil { // #nosec G306 -- project files are intentionally world-readable
 		return err
 	}
 	fmt.Println("  [ok] .github/copilot-instructions.md  (GitHub Copilot)")
@@ -99,7 +99,7 @@ func generateCopilot(targetDir string, selected []Skill) error {
 
 func generateWindsurf(targetDir string, selected []Skill) error {
 	path := filepath.Join(targetDir, ".windsurfrules")
-	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil { // #nosec G306 -- project files are intentionally world-readable
 		return err
 	}
 	fmt.Println("  [ok] .windsurfrules  (Windsurf)")
@@ -108,7 +108,7 @@ func generateWindsurf(targetDir string, selected []Skill) error {
 
 func generateCline(targetDir string, selected []Skill) error {
 	path := filepath.Join(targetDir, ".clinerules")
-	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil { // #nosec G306 -- project files are intentionally world-readable
 		return err
 	}
 	fmt.Println("  [ok] .clinerules  (Cline)")
@@ -117,7 +117,7 @@ func generateCline(targetDir string, selected []Skill) error {
 
 func generateAider(targetDir string, selected []Skill) error {
 	path := filepath.Join(targetDir, "CONVENTIONS.md")
-	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil { // #nosec G306 -- project files are intentionally world-readable
 		return err
 	}
 	fmt.Println("  [ok] CONVENTIONS.md  (Aider)")
@@ -126,11 +126,11 @@ func generateAider(targetDir string, selected []Skill) error {
 
 func generateContinue(targetDir string, selected []Skill) error {
 	dir := filepath.Join(targetDir, ".continue")
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return err
 	}
 	path := filepath.Join(dir, "rules.md")
-	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(combinedContent(selected)), 0644); err != nil { // #nosec G306 -- project files are intentionally world-readable
 		return err
 	}
 	fmt.Println("  [ok] .continue/rules.md  (Continue)")
@@ -143,7 +143,7 @@ func generateOpenCode(targetDir string, selected []Skill) error {
 		fmt.Println("  [ok] AGENTS.md  (OpenCode — already written by Claude Code)")
 		return nil
 	}
-	if err := os.WriteFile(path, []byte(agentsIndex(selected)), 0644); err != nil {
+	if err := os.WriteFile(path, []byte(agentsIndex(selected)), 0644); err != nil { // #nosec G306 -- project files are intentionally world-readable
 		return fmt.Errorf("failed to write AGENTS.md: %w", err)
 	}
 	fmt.Println("  [ok] AGENTS.md  (OpenCode)")

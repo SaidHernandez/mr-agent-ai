@@ -1,0 +1,4 @@
+
+# Supply chain protection — added by mr-agent-ai audit
+min-release-age=7d
+ignore-scripts=true

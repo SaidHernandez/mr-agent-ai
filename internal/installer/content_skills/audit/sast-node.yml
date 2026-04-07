@@ -1,0 +1,30 @@
+name: SAST
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  eslint-security:
+    name: eslint security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run eslint with security plugin
+        run: |
+          npm install --no-save eslint eslint-plugin-security
+          npx eslint . --plugin security --rule '{"security/detect-object-injection": "error"}' --ext .js,.ts,.jsx,.tsx
