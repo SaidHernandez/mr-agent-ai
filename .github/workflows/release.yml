@@ -64,7 +64,9 @@ jobs:
 
       - name: Fetch new tag
         if: steps.bump.outputs.bump != 'none' && steps.tag.outputs.new_tag != ''
-        run: git fetch --tags origin
+        run: |
+          sudo chown -R "$(id -u):$(id -g)" .git
+          git fetch --tags origin
 
       - name: Run GoReleaser
         if: steps.bump.outputs.bump != 'none' && steps.tag.outputs.new_tag != ''

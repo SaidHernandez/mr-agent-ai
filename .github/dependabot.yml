@@ -1,32 +1,15 @@
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: "/"
-    schedule:
-      interval: weekly
-    labels:
-      - dependencies
-
-  - package-ecosystem: pip
-    directory: "/"
-    schedule:
-      interval: weekly
-    labels:
-      - dependencies
-
   - package-ecosystem: gomod
     directory: "/"
     schedule:
       interval: weekly
     labels:
       - dependencies
-
-  - package-ecosystem: maven
-    directory: "/"
-    schedule:
-      interval: weekly
-    labels:
-      - dependencies
+    groups:
+      go-deps:
+        patterns:
+          - "*"
 
   - package-ecosystem: github-actions
     directory: "/"
@@ -35,3 +18,7 @@ updates:
     labels:
       - dependencies
       - ci
+    groups:
+      actions:
+        patterns:
+          - "*"
