@@ -15,6 +15,13 @@ coverage.txt
 .env
 .env.local
 
+# mr-agent-ai theme (local config and runtime cache)
+.agentrc.yml
+.agentrc.tokens.json
+.agentrc.state.json
+.agentrc.input.json
+.vscode/tasks.json
+
 # Security — added by mr-agent-ai audit
 .env
 .env.*
