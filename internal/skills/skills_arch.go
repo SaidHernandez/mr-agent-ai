@@ -1,4 +1,4 @@
-package installer
+package skills
 
 // archSkills contains all architecture-layer skills (orchestrator, frontend, API, etc.).
 var archSkills = []Skill{

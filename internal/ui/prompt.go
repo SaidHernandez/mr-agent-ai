@@ -1,43 +1,23 @@
-package installer
+package ui
 
 import (
 	"bufio"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
 
-// promptSelectOne shows a numbered list and returns a single selected index (-1 if skipped).
-func promptSelectOne(reader *bufio.Reader, title string, items []string) int {
-	fmt.Printf("%s\n\n", title)
-	for i, item := range items {
-		fmt.Printf("  %2d.  %s\n", i+1, item)
-	}
-	fmt.Print("\n  Enter a number (or press Enter to skip): ")
-
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(input)
-
-	if input == "" {
-		return -1
-	}
-
-	n, err := strconv.Atoi(input)
-	if err != nil || n < 1 || n > len(items) {
-		return -1
-	}
-	return n - 1
-}
-
-// promptSelect shows a numbered list and returns the selected indices.
+// Select shows a numbered list and returns the selected indices.
 // Empty input or "all" selects everything.
-func promptSelect(reader *bufio.Reader, title string, items []string) []int {
+func Select(title string, items []string) []int {
 	fmt.Printf("%s\n\n", title)
 	for i, item := range items {
 		fmt.Printf("  %2d.  %s\n", i+1, item)
 	}
 	fmt.Print("\n  Enter numbers (e.g. 1,3 or 'all'): ")
 
+	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 	input = strings.TrimSpace(strings.ToLower(input))
 
@@ -60,4 +40,27 @@ func promptSelect(reader *bufio.Reader, title string, items []string) []int {
 		indices = append(indices, n-1)
 	}
 	return indices
+}
+
+// SelectOne shows a numbered list and returns a single selected index (-1 if skipped).
+func SelectOne(title string, items []string) int {
+	fmt.Printf("%s\n\n", title)
+	for i, item := range items {
+		fmt.Printf("  %2d.  %s\n", i+1, item)
+	}
+	fmt.Print("\n  Enter a number (or press Enter to skip): ")
+
+	reader := bufio.NewReader(os.Stdin)
+	input, _ := reader.ReadString('\n')
+	input = strings.TrimSpace(input)
+
+	if input == "" {
+		return -1
+	}
+
+	n, err := strconv.Atoi(input)
+	if err != nil || n < 1 || n > len(items) {
+		return -1
+	}
+	return n - 1
 }

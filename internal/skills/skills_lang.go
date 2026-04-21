@@ -1,4 +1,4 @@
-package installer
+package skills
 
 // langSkills contains language and framework skills (single-select).
 var langSkills = []Skill{

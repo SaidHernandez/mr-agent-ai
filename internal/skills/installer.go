@@ -1,24 +1,23 @@
-package installer
+package skills
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"mr-agent-ai/internal/ui"
 )
 
 // Install runs the interactive installer: selects tools, selects skills, writes files.
 func Install(targetDir string) error {
 	printBanner()
 
-	reader := bufio.NewReader(os.Stdin)
-
 	// Step 1: select AI coding tools
 	toolLabels := make([]string, len(tools))
 	for i, t := range tools {
 		toolLabels[i] = fmt.Sprintf("%-14s — %s", t.Name, t.Description)
 	}
-	toolIndices := promptSelect(reader, "Select your AI coding tools:", toolLabels)
+	toolIndices := ui.Select("Select your AI coding tools:", toolLabels)
 	if len(toolIndices) == 0 {
 		fmt.Println("\n[mr-agent-ai] No tools selected. Nothing installed.")
 		return nil
@@ -33,7 +32,7 @@ func Install(targetDir string) error {
 	for i, s := range archSkills {
 		archLabels[i] = fmt.Sprintf("%-18s — %s", s.Name, s.Description)
 	}
-	archIndices := promptSelect(reader, "\nSelect which architecture skills to install:", archLabels)
+	archIndices := ui.Select("\nSelect which architecture skills to install:", archLabels)
 	if len(archIndices) == 0 {
 		fmt.Println("\n[mr-agent-ai] No skills selected. Nothing installed.")
 		return nil
@@ -48,7 +47,7 @@ func Install(targetDir string) error {
 	for i, l := range langSkills {
 		langLabels[i] = fmt.Sprintf("%-14s — %s", l.Name, l.Description)
 	}
-	langIdx := promptSelectOne(reader, "\nSelect a programming language skill (optional):", langLabels)
+	langIdx := ui.SelectOne("\nSelect a programming language skill (optional):", langLabels)
 	if langIdx >= 0 {
 		selected = append(selected, langSkills[langIdx])
 	}
